@@ -673,6 +673,12 @@
             }
         }
 
+        function showFirebaseError(message) {
+            const msgDiv = document.getElementById('firebaseMessage');
+            msgDiv.textContent = '❌ ' + message;
+            msgDiv.classList.remove('hidden');
+        }
+
         function firebaseRegister() {
             // Проверка, загружена ли Firebase
             if (typeof firebase === 'undefined') {
@@ -730,12 +736,6 @@
             if (!initFirebase()) {
                 showFirebaseError('Firebase недоступен');
                 return;
-            }
-
-            function showFirebaseError(message) {
-                const msgDiv = document.getElementById('firebaseMessage');
-                msgDiv.textContent = '❌ ' + message;
-                msgDiv.classList.remove('hidden');
             }
 
             const email = document.getElementById('firebaseEmail').value.trim();
