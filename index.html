@@ -1,12 +1,17 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Отжимания 50/день - Локальный трекер</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
             --primary: #667eea;
             --primary-dark: #764ba2;
@@ -29,27 +34,27 @@
         }
 
 
-        .container { 
-            max-width: 600px; 
-            margin: 0 auto; 
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
         }
 
-        .header { 
-            text-align: center; 
-            color: white; 
-            margin-bottom: 24px; 
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 24px;
         }
 
-        .header h1 { 
-            font-size: clamp(1.5em, 5vw, 2.5em); 
-            font-weight: 800; 
-            margin-bottom: 8px; 
+        .header h1 {
+            font-size: clamp(1.5em, 5vw, 2.5em);
+            font-weight: 800;
+            margin-bottom: 8px;
             word-break: break-word;
         }
 
-        .header p { 
-            font-size: clamp(0.9em, 3vw, 1.1em); 
-            opacity: 0.95; 
+        .header p {
+            font-size: clamp(0.9em, 3vw, 1.1em);
+            opacity: 0.95;
             word-break: break-word;
         }
 
@@ -91,11 +96,11 @@
         }
 
 
-        .section-title { 
-            font-size: clamp(1em, 3vw, 1.2em); 
-            font-weight: 700; 
-            margin-bottom: 16px; 
-            color: var(--text); 
+        .section-title {
+            font-size: clamp(1em, 3vw, 1.2em);
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text);
             word-break: break-word;
         }
 
@@ -137,10 +142,10 @@
         }
 
 
-        .month-name { 
-            font-size: clamp(1em, 3vw, 1.3em); 
-            font-weight: 700; 
-            text-align: center; 
+        .month-name {
+            font-size: clamp(1em, 3vw, 1.3em);
+            font-weight: 700;
+            text-align: center;
             flex: 1;
             min-width: 200px;
             word-break: break-word;
@@ -184,47 +189,47 @@
         }
 
 
-        .calendar-day:hover { 
-            transform: scale(1.05); 
-            background: var(--border); 
+        .calendar-day:hover {
+            transform: scale(1.05);
+            background: var(--border);
         }
 
-        .calendar-day.other-month { 
-            color: var(--text-light); 
-            opacity: 0.5; 
-            cursor: default; 
+        .calendar-day.other-month {
+            color: var(--text-light);
+            opacity: 0.5;
+            cursor: default;
         }
 
-        .calendar-day.other-month:hover { 
-            transform: none; 
-            background: var(--bg); 
+        .calendar-day.other-month:hover {
+            transform: none;
+            background: var(--bg);
         }
 
-        .calendar-day.today { 
-            background: var(--primary); 
-            color: white; 
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2); 
+        .calendar-day.today {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
         }
 
-        .calendar-day.trained { 
-            background: var(--success); 
-            color: white; 
-            font-weight: 800; 
+        .calendar-day.trained {
+            background: var(--success);
+            color: white;
+            font-weight: 800;
         }
 
-        .calendar-day.partial { 
-            background: var(--primary); 
-            color: white; 
+        .calendar-day.partial {
+            background: var(--primary);
+            color: white;
         }
 
-        .calendar-day.missed { 
-            background: #fed7d7; 
-            color: #c53030; 
+        .calendar-day.missed {
+            background: #fed7d7;
+            color: #c53030;
         }
 
-        .calendar-day.selected { 
-            border-color: var(--primary); 
-            box-shadow: 0 0 0 2px var(--primary); 
+        .calendar-day.selected {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary);
         }
 
 
@@ -245,7 +250,8 @@
         }
 
 
-        input, textarea {
+        input,
+        textarea {
             padding: 12px;
             border: 2px solid var(--border);
             border-radius: 10px;
@@ -258,7 +264,8 @@
         }
 
 
-        input:focus, textarea:focus {
+        input:focus,
+        textarea:focus {
             outline: none;
             border-color: var(--primary);
             background: white;
@@ -338,22 +345,24 @@
         }
 
 
-        .stat-value { 
-            font-size: clamp(1.5em, 4vw, 2em); 
-            font-weight: 800; 
-            color: var(--primary); 
+        .stat-value {
+            font-size: clamp(1.5em, 4vw, 2em);
+            font-weight: 800;
+            color: var(--primary);
             word-break: break-word;
         }
 
-        .stat-label { 
-            font-size: clamp(0.75em, 2vw, 0.85em); 
-            color: var(--text-light); 
-            margin-top: 4px; 
+        .stat-label {
+            font-size: clamp(0.75em, 2vw, 0.85em);
+            color: var(--text-light);
+            margin-top: 4px;
             word-break: break-word;
         }
 
 
-        .hidden { display: none; }
+        .hidden {
+            display: none;
+        }
 
 
         .status {
@@ -421,22 +430,52 @@
         }
 
         @media (max-width: 600px) {
-            .header h1 { font-size: 1.8em; }
-            .container { max-width: 100%; }
-            .stats { grid-template-columns: 1fr 1fr; }
-            .card { padding: 16px; }
-            .month-header { margin-bottom: 12px; }
-            body { padding: 12px 8px; }
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .card {
+                padding: 16px;
+            }
+
+            .month-header {
+                margin-bottom: 12px;
+            }
+
+            body {
+                padding: 12px 8px;
+            }
         }
 
         @media (max-width: 400px) {
-            .calendar-day { min-height: 40px; }
-            .stat { padding: 12px; }
-            .set-row { grid-template-columns: 1fr 35px; gap: 6px; }
-            .delete-btn { padding: 6px 8px; }
+            .calendar-day {
+                min-height: 40px;
+            }
+
+            .stat {
+                padding: 12px;
+            }
+
+            .set-row {
+                grid-template-columns: 1fr 35px;
+                gap: 6px;
+            }
+
+            .delete-btn {
+                padding: 6px 8px;
+            }
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -449,9 +488,10 @@
         <div id="authSection" class="auth-section">
             <div class="status">✅ Данные хранятся локально на вашем устройстве</div>
             <h2 style="margin-bottom: 16px; font-size: clamp(1.1em, 3vw, 1.3em);">👋 Добро пожаловать!</h2>
-            <p style="color: var(--text-light); margin-bottom: 16px; font-size: clamp(0.85em, 2vw, 0.95em);">Введите имя для начала отслеживания прогресса</p>
+            <p style="color: var(--text-light); margin-bottom: 16px; font-size: clamp(0.85em, 2vw, 0.95em);">Введите имя
+                для начала отслеживания прогресса</p>
             <input type="text" id="authUser" placeholder="Ваше имя">
-            
+
             <div class="firebase-toggle" id="firebaseToggleAuth">
                 <button class="active" onclick="setAuthMode('local')">📱 Локально</button>
                 <button onclick="setAuthMode('firebase')">☁️ Firebase</button>
@@ -464,7 +504,8 @@
                     <button class="btn btn-primary btn-small" onclick="firebaseRegister()">Регистрация</button>
                     <button class="btn btn-primary btn-small" onclick="firebaseLogin()">Вход</button>
                 </div>
-                <div id="firebaseAuthMessage" style="margin-top: 12px; color: var(--text-light); font-size: 0.9em;"></div>
+                <div id="firebaseAuthMessage" style="margin-top: 12px; color: var(--text-light); font-size: 0.9em;">
+                </div>
             </div>
 
             <button class="btn btn-primary" onclick="startApp()" style="margin-top: 12px;">Начать</button>
@@ -474,9 +515,11 @@
 
         <!-- Основное приложение -->
         <div id="appSection" class="hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 8px; flex-wrap: wrap;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; gap: 8px; flex-wrap: wrap;">
                 <div id="syncStatus"></div>
-                <button class="btn btn-danger btn-small" onclick="logout()" style="width: auto; padding: 8px 12px; white-space: nowrap;">Выход</button>
+                <button class="btn btn-danger btn-small" onclick="logout()"
+                    style="width: auto; padding: 8px 12px; white-space: nowrap;">Выход</button>
             </div>
 
 
@@ -495,9 +538,11 @@
 
             <div class="card">
                 <div class="section-title">⚡ Запишите тренировку</div>
-                <div style="background: var(--bg); padding: 12px; border-radius: 10px; margin-bottom: 16px; text-align: center;">
+                <div
+                    style="background: var(--bg); padding: 12px; border-radius: 10px; margin-bottom: 16px; text-align: center;">
                     <p style="color: var(--text-light); font-size: 0.9em; margin: 0;">Выбранная дата:</p>
-                    <p style="color: var(--text); font-weight: 700; margin: 4px 0; word-break: break-word;" id="selectedDateDisplay">-</p>
+                    <p style="color: var(--text); font-weight: 700; margin: 4px 0; word-break: break-word;"
+                        id="selectedDateDisplay">-</p>
                 </div>
                 <div class="input-group">
                     <input type="time" id="workoutTime" placeholder="⏰ Время">
@@ -552,7 +597,8 @@
                     <input type="number" id="weight" placeholder="Вес, кг" step="0.1">
                     <button class="btn btn-primary btn-small" onclick="saveWeight()">Сохранить вес</button>
                 </div>
-                <div id="weightInfo" style="margin-top: 12px; padding: 12px; background: var(--bg); border-radius: 10px; text-align: center;">
+                <div id="weightInfo"
+                    style="margin-top: 12px; padding: 12px; background: var(--bg); border-radius: 10px; text-align: center;">
                     <p style="color: var(--text-light); font-size: 0.9em;">Нет записей веса</p>
                 </div>
             </div>
@@ -610,12 +656,12 @@
         function setAuthMode(mode) {
             authMode = mode;
             useFirebase = mode === 'firebase';
-            
+
             document.querySelectorAll('#firebaseToggleAuth button').forEach(btn => {
                 btn.classList.remove('active');
             });
             event.target.classList.add('active');
-            
+
             const firebaseSection = document.getElementById('firebaseAuthSection');
             if (useFirebase) {
                 firebaseSection.classList.remove('hidden');
@@ -628,44 +674,97 @@
         }
 
         function firebaseRegister() {
-            initFirebase();
+            // Проверка, загружена ли Firebase
+            if (typeof firebase === 'undefined') {
+                showFirebaseError('Firebase не загружен. Попробуйте позже или используйте локальное хранилище');
+                return;
+            }
+
+            if (!initFirebase()) {
+                showFirebaseError('Firebase недоступен');
+                return;
+            }
+
             const email = document.getElementById('firebaseEmail').value.trim();
             const password = document.getElementById('firebasePassword').value.trim();
 
             if (!email || !password) {
-                document.getElementById('firebaseAuthMessage').textContent = '❌ Введите email и пароль';
+                showFirebaseError('Введите email и пароль');
                 return;
             }
+
+            if (password.length < 6) {
+                showFirebaseError('Пароль должен быть не менее 6 символов');
+                return;
+            }
+
+            document.getElementById('registerBtn').disabled = true;
 
             firebase.auth().createUserWithEmailAndPassword(email, password)
                 .then(userCredential => {
                     firebaseUser = userCredential.user;
                     currentUser = userCredential.user.uid;
-                    document.getElementById('firebaseAuthMessage').textContent = '✅ Регистрация успешна! Нажмите "Начать"';
+                    document.getElementById('firebaseMessage').textContent = '✅ Регистрация успешна! Нажмите "Начать"';
+                    document.getElementById('firebaseMessage').classList.remove('hidden');
+                    document.getElementById('registerBtn').disabled = false;
                 })
                 .catch(error => {
-                    document.getElementById('firebaseAuthMessage').textContent = '❌ ' + error.message;
+                    let errorMsg = error.message;
+                    if (error.code === 'auth/email-already-in-use') {
+                        errorMsg = 'Этот email уже зарегистрирован';
+                    } else if (error.code === 'auth/invalid-email') {
+                        errorMsg = 'Некорректный email';
+                    }
+                    showFirebaseError(errorMsg);
+                    document.getElementById('registerBtn').disabled = false;
                 });
         }
 
         function firebaseLogin() {
-            initFirebase();
+            // Проверка, загружена ли Firebase
+            if (typeof firebase === 'undefined') {
+                showFirebaseError('Firebase не загружен. Попробуйте позже или используйте локальное хранилище');
+                return;
+            }
+
+            if (!initFirebase()) {
+                showFirebaseError('Firebase недоступен');
+                return;
+            }
+
+            function showFirebaseError(message) {
+                const msgDiv = document.getElementById('firebaseMessage');
+                msgDiv.textContent = '❌ ' + message;
+                msgDiv.classList.remove('hidden');
+            }
+
             const email = document.getElementById('firebaseEmail').value.trim();
             const password = document.getElementById('firebasePassword').value.trim();
 
             if (!email || !password) {
-                document.getElementById('firebaseAuthMessage').textContent = '❌ Введите email и пароль';
+                showFirebaseError('Введите email и пароль');
                 return;
             }
+
+            document.getElementById('loginBtn').disabled = true;
 
             firebase.auth().signInWithEmailAndPassword(email, password)
                 .then(userCredential => {
                     firebaseUser = userCredential.user;
                     currentUser = userCredential.user.uid;
-                    document.getElementById('firebaseAuthMessage').textContent = '✅ Вход успешен! Нажмите "Начать"';
+                    document.getElementById('firebaseMessage').textContent = '✅ Вход успешен! Нажмите "Начать"';
+                    document.getElementById('firebaseMessage').classList.remove('hidden');
+                    document.getElementById('loginBtn').disabled = false;
                 })
                 .catch(error => {
-                    document.getElementById('firebaseAuthMessage').textContent = '❌ ' + error.message;
+                    let errorMsg = error.message;
+                    if (error.code === 'auth/user-not-found') {
+                        errorMsg = 'Пользователь не найден';
+                    } else if (error.code === 'auth/wrong-password') {
+                        errorMsg = 'Неверный пароль';
+                    }
+                    showFirebaseError(errorMsg);
+                    document.getElementById('loginBtn').disabled = false;
                 });
         }
 
@@ -701,7 +800,7 @@
 
         function loadFirebaseData() {
             updateSyncStatus('☁️ Загрузка данных...', 'syncing');
-            
+
             const dbRef = firebase.database().ref('users/' + currentUser + '/data');
             dbRef.on('value', snapshot => {
                 if (snapshot.exists()) {
@@ -736,7 +835,7 @@
             if (!firebaseUser) return;
 
             updateSyncStatus('☁️ Сохранение...', 'syncing');
-            
+
             firebase.database().ref('users/' + currentUser + '/data').set(data)
                 .then(() => {
                     updateSyncStatus('☁️ Синхронизировано', 'synced');
@@ -785,7 +884,7 @@
             document.getElementById('firebasePassword').value = '';
             document.getElementById('authMessage').textContent = '';
             document.getElementById('firebaseAuthMessage').textContent = '';
-            
+
             const buttons = document.querySelectorAll('#firebaseToggleAuth button');
             if (buttons.length > 0) {
                 buttons[0].classList.add('active');
@@ -793,7 +892,7 @@
                     if (i > 0) btn.classList.remove('active');
                 });
             }
-            
+
             document.getElementById('authUser').style.display = 'block';
             document.getElementById('firebaseAuthSection').classList.add('hidden');
         }
@@ -821,14 +920,14 @@
 
             const calendar = document.getElementById('calendar');
             calendar.innerHTML = '';
-            
+
             ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].forEach(day => {
                 const header = document.createElement('div');
                 header.className = 'weekday-header';
                 header.textContent = day;
                 calendar.appendChild(header);
             });
-            
+
             const prevMonthLastDay = new Date(year, month, 0).getDate();
             for (let i = startingDayOfWeek - 1; i >= 0; i--) {
                 const day = document.createElement('div');
@@ -883,7 +982,7 @@
         function selectDate(dateStr) {
             selectedDate = dateStr;
             const workout = data.workouts.find(w => w.date === dateStr);
-            
+
             const dateObj = new Date(dateStr);
             document.getElementById('selectedDateDisplay').textContent = dateObj.toLocaleDateString('ru-RU', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' });
 
@@ -1005,7 +1104,7 @@
             start.setDate(today.getDate() - 13);
 
             chart.innerHTML = '';
-            
+
             let maxPushups = 50;
             for (let i = 0; i < 14; i++) {
                 const date = new Date(start);
@@ -1022,7 +1121,7 @@
                 const dateStr = date.toDateString();
                 const workout = data.workouts.find(w => w.date === dateStr);
                 const total = workout?.total || 0;
-                
+
                 const barHeight = total > 0 ? Math.max(20, Math.round((total / maxPushups) * 80)) : 5;
                 const bgColor = total >= 50 ? 'var(--success)' : total > 0 ? 'var(--primary)' : '#ddd';
 
@@ -1067,9 +1166,10 @@
         }
 
         // Инициализация
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             initFirebase();
         });
     </script>
 </body>
+
 </html>
