@@ -523,6 +523,24 @@
         let isSignupMode = false;
         let data = { workouts: [], weights: [] };
 
+        // ✅ ФУНКЦИЯ КОНВЕРТАЦИИ ДАТ
+        function normalizeDate(dateStr) {
+            // Если дата уже в формате YYYY-MM-DD, вернуть как есть
+            if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+                return dateStr;
+            }
+            
+            // Попытка парсить текстовую дату (Mon Jan 12 2026)
+            try {
+                const date = new Date(dateStr);
+                if (!isNaN(date)) {
+                    return date.toISOString().split('T')[0];
+                }
+            } catch (e) {}
+            
+            return dateStr; // вернуть как есть, если не удалось парсить
+        }
+
         try {
             if (!firebase.apps.length) {
                 firebase.initializeApp(firebaseConfig);
@@ -610,9 +628,27 @@
                 firebase.database().ref('users/' + userId).once('value', (snapshot) => {
                     if (snapshot.exists()) {
                         data = snapshot.val();
+                        
+                        // 🔄 КОНВЕРТИРУЕМ ДАТЫ ВО ВСЕХ ТРЕНИРОВКАХ
+                        if (data.workouts && Array.isArray(data.workouts)) {
+                            data.workouts = data.workouts.map(w => ({
+                                ...w,
+                                date: normalizeDate(w.date)
+                            }));
+                        }
+                        
+                        // 🔄 КОНВЕРТИРУЕМ ДАТЫ ВО ВСЕХ ВЕСАХ
+                        if (data.weights && Array.isArray(data.weights)) {
+                            data.weights = data.weights.map(wt => ({
+                                ...wt,
+                                date: normalizeDate(wt.date)
+                            }));
+                        }
+                        
                         console.log("✅ УСПЕХ! Загружено workouts:", data.workouts ? data.workouts.length : 0);
                         console.log("✅ УСПЕХ! Загружено weights:", data.weights ? data.weights.length : 0);
-                        console.log("📊 Полные данные:", JSON.stringify(data));
+                        console.log("📊 Первая тренировка дата:", data.workouts && data.workouts[0] ? data.workouts[0].date : 'нет');
+                        console.log("📊 Полные данные:", JSON.stringify(data).substring(0, 200));
                     } else {
                         data = { workouts: [], weights: [] };
                         console.log("ℹ️ Нет данных в Firebase, начинаем с нуля");
@@ -862,6 +898,9 @@
             const firstDay = new Date(year, month - 1, 1).getDay();
             const daysInMonth = new Date(year, month, 0).getDate();
 
+            console.log("🗓️ Рисуем календарь на", year + '-' + month);
+            console.log("🗓️ Доступные даты тренировок:", data.workouts.map(w => w.date).slice(0, 5));
+
             for (let i = 0; i < firstDay; i++) {
                 const emptyDay = document.createElement('div');
                 monthCalendar.appendChild(emptyDay);
@@ -875,6 +914,7 @@
                 dayElement.textContent = day;
 
                 if (workout) {
+                    console.log("✅ Найдена тренировка на:", dateStr);
                     if (workout.type === 'missed') dayElement.classList.add('missed');
                     else if (workout.type === 'max_test') dayElement.classList.add('max-test');
                     else if (workout.total > 0) dayElement.classList.add('completed');
