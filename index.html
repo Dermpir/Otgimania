@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Отжимания - Продвинутый трекер</title>
+    <title>Отжимания Cloud - Трекер</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js"></script>
     <style>
         * {
             margin: 0;
@@ -38,21 +40,131 @@
             margin: 0 auto;
         }
 
+        .auth-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .auth-form {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 32px 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .auth-title {
+            text-align: center;
+            font-size: 2em;
+            font-weight: 800;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 24px;
+            font-size: 0.95em;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-error {
+            color: var(--danger);
+            font-size: 0.85em;
+            margin-top: 4px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            margin-bottom: 12px;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--bg);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .header {
             text-align: center;
             color: white;
             margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .header h1 {
-            font-size: clamp(1.5em, 5vw, 2.5em);
+            font-size: 2em;
             font-weight: 800;
-            margin-bottom: 8px;
+            flex: 1;
         }
 
-        .header p {
-            font-size: clamp(0.9em, 3vw, 1.1em);
-            opacity: 0.95;
+        .btn-logout {
+            background: var(--danger);
+            color: white;
+            padding: 8px 12px;
+            font-size: 0.85em;
+            width: auto;
+        }
+
+        .btn-logout:hover {
+            background: #e53e3e;
         }
 
         .card {
@@ -75,74 +187,6 @@
             grid-template-columns: 1fr auto;
             gap: 12px;
             margin-bottom: 16px;
-        }
-
-        .input-group input {
-            padding: 12px;
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            font-size: 1em;
-        }
-
-        .btn {
-            padding: 12px 20px;
-            border: none;
-            border-radius: 10px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-transform: none;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #38a169;
-        }
-
-        .btn-danger {
-            background: var(--danger);
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #e53e3e;
-        }
-
-        .btn-warning {
-            background: var(--warning);
-            color: white;
-        }
-
-        .btn-warning:hover {
-            background: #d69e2e;
-        }
-
-        .btn-small {
-            padding: 8px 12px;
-            font-size: 0.9em;
-        }
-
-        .btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 16px;
         }
 
         .set-row {
@@ -178,12 +222,49 @@
             border-radius: 8px;
             cursor: pointer;
             font-size: 1em;
-            transition: all 0.2s;
         }
 
         .delete-btn:hover {
             background: #e53e3e;
-            transform: scale(1.1);
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.9em;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #38a169;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #e53e3e;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d69e2e;
         }
 
         .stats {
@@ -212,25 +293,6 @@
             font-weight: 600;
         }
 
-        .alert {
-            padding: 16px;
-            border-radius: 10px;
-            margin-bottom: 16px;
-            font-weight: 600;
-        }
-
-        .alert-warning {
-            background: rgba(237, 137, 54, 0.1);
-            border-left: 4px solid var(--warning);
-            color: var(--warning);
-        }
-
-        .alert-success {
-            background: rgba(72, 187, 120, 0.1);
-            border-left: 4px solid var(--success);
-            color: var(--success);
-        }
-
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -249,10 +311,6 @@
             cursor: pointer;
             border: 2px solid var(--border);
             transition: all 0.2s;
-        }
-
-        .calendar-day:hover {
-            border-color: var(--primary);
         }
 
         .calendar-day.completed {
@@ -291,7 +349,6 @@
             border-radius: 4px 4px 0 0;
             min-height: 4px;
             width: 100%;
-            transition: all 0.2s;
         }
 
         .chart-column.max-test {
@@ -301,12 +358,19 @@
         .chart-label {
             font-size: 0.8em;
             color: var(--text-light);
-            text-align: center;
         }
 
-        .weight-trend {
-            position: relative;
-            margin-top: 16px;
+        .alert {
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .alert-warning {
+            background: rgba(237, 137, 54, 0.1);
+            border-left: 4px solid var(--warning);
+            color: var(--warning);
         }
 
         .weight-point {
@@ -319,172 +383,293 @@
             border-left: 4px solid var(--primary);
         }
 
-        .weight-date {
-            font-weight: 600;
-            color: var(--text);
-        }
-
         .weight-value {
             color: var(--primary);
             font-weight: 700;
-            font-size: 1.1em;
         }
 
-        .weight-change {
-            font-size: 0.9em;
-            color: var(--text-light);
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
         }
 
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 20px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-title {
-            font-size: 1.3em;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text);
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         @media (max-width: 600px) {
             .set-row {
                 grid-template-columns: 1fr 1fr auto;
-                gap: 8px;
-            }
-
-            .difficulty-select {
-                font-size: 0.8em;
-                padding: 6px 8px;
             }
         }
     </style>
 </head>
-
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>💪 Отжимания</h1>
-            <p id="progressText">Добавьте тренировку</p>
-        </div>
+    <!-- Auth Screen -->
+    <div id="authScreen" class="auth-screen">
+        <div class="auth-form">
+            <div class="auth-title">💪</div>
+            <div class="auth-subtitle">Отжимания Cloud</div>
 
-        <div id="maxTestAlert" class="card" style="display: none;">
-            <div class="alert alert-warning">
-                ⚠️ После 500 отжиманий - нужна проверка максимума!
+            <div id="authError" class="form-error" style="display: none; text-align: center; margin-bottom: 16px;"></div>
+
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" id="authEmail" class="form-input" placeholder="your@email.com">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Пароль</label>
+                <input type="password" id="authPassword" class="form-input" placeholder="••••••••">
+            </div>
+
+            <button class="btn btn-primary" id="loginBtn" onclick="handleLogin()">Вход</button>
+            <button class="btn btn-secondary" id="signupBtn" onclick="toggleAuthMode()">Регистрация</button>
+
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); font-size: 0.85em; color: var(--text-light);">
+                <p>Демо-аккаунт:</p>
+                <p><strong>Email:</strong> demo@test.com</p>
+                <p><strong>Пароль:</strong> demo123456</p>
             </div>
         </div>
+    </div>
 
-        <div class="card">
-            <div class="section-title">🏋️ Добавить тренировку</div>
-            <div id="setsContainer"></div>
-            <button class="btn btn-primary btn-small" onclick="addSet()">➕ Добавить подход</button>
-            
-            <div class="btn-group">
-                <button class="btn btn-success" onclick="saveWorkout()">✅ Записать тренировку</button>
-                <button class="btn btn-danger" onclick="markMissed()">❌ Пропуск</button>
+    <!-- Main App -->
+    <div id="appScreen" style="display: none;">
+        <div class="container">
+            <div class="header">
+                <h1>💪 Отжимания</h1>
+                <button class="btn btn-logout" onclick="handleLogout()">Выход</button>
             </div>
-        </div>
 
-        <div class="card">
-            <div class="section-title">⚡ Проверка максимума</div>
-            <div class="input-group">
-                <input type="number" id="maxTestReps" placeholder="Макс отжиманий без пауз" min="0">
-                <button class="btn btn-warning btn-small" onclick="saveMaxTest()">📊 Сохранить</button>
-            </div>
-            <div id="maxTestInfo" style="color: var(--text-light); text-align: center; padding: 12px;">
-                Результаты максимум тестов здесь
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="stats">
-                <div class="stat">
-                    <div class="stat-value" id="totalPushups">0</div>
-                    <div class="stat-label">Всего отжиманий</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value" id="streak">0</div>
-                    <div class="stat-label">Серия дней</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value" id="successDays">0</div>
-                    <div class="stat-label">Успешных дней</div>
-                </div>
-                <div class="stat">
-                    <div class="stat-value" id="avgPerDay">0</div>
-                    <div class="stat-label">В день (средняя)</div>
+            <div id="maxTestAlert" class="card" style="display: none;">
+                <div class="alert alert-warning">
+                    ⚠️ После 500 отжиманий - нужна проверка максимума!
                 </div>
             </div>
-        </div>
 
-        <div class="card">
-            <div class="section-title">📅 Календарь (выберите месяц)</div>
-            <div class="input-group">
-                <input type="month" id="monthSelect" value="">
+            <div class="card">
+                <div class="section-title">🏋️ Добавить тренировку</div>
+                <div id="setsContainer"></div>
+                <button class="btn btn-primary btn-small" onclick="addSet()">➕ Добавить подход</button>
+                
+                <div class="btn-group">
+                    <button class="btn btn-success" onclick="saveWorkout()">✅ Записать</button>
+                    <button class="btn btn-danger" onclick="markMissed()">❌ Пропуск</button>
+                </div>
             </div>
-            <div class="calendar" id="monthCalendar"></div>
-        </div>
 
-        <div class="card">
-            <div class="section-title">⚖️ Вес и тренд</div>
-            <div class="input-group">
-                <input type="number" id="weight" placeholder="Вес, кг" step="0.1">
-                <button class="btn btn-primary btn-small" onclick="saveWeight()">Сохранить</button>
+            <div class="card">
+                <div class="section-title">⚡ Проверка максимума</div>
+                <div class="input-group">
+                    <input type="number" id="maxTestReps" class="form-input" placeholder="Макс отжиманий" min="0">
+                    <button class="btn btn-warning btn-small" onclick="saveMaxTest()">📊 Сохранить</button>
+                </div>
+                <div id="maxTestInfo" style="color: var(--text-light); text-align: center; padding: 12px;">
+                    Результаты максимум тестов здесь
+                </div>
             </div>
-            <div id="weightTrend" class="weight-trend"></div>
-        </div>
 
-        <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <div class="section-title" style="margin-bottom: 0;">📈 График отжиманий</div>
-                <select id="chartPeriod" onchange="updateChart()" style="padding: 8px 12px; border: 2px solid var(--border); border-radius: 8px; background: var(--bg); cursor: pointer;">
-                    <option value="7">7 дней</option>
-                    <option value="14">14 дней</option>
-                    <option value="30">30 дней</option>
-                    <option value="all">Все</option>
-                </select>
+            <div class="card">
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value" id="totalPushups">0</div>
+                        <div class="stat-label">Всего отжиманий</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="streak">0</div>
+                        <div class="stat-label">Серия дней</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="successDays">0</div>
+                        <div class="stat-label">Успешных дней</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="avgPerDay">0</div>
+                        <div class="stat-label">В день (средняя)</div>
+                    </div>
+                </div>
             </div>
-            <div class="chart-container" id="chart"></div>
-        </div>
 
-        <div class="card">
-            <div class="section-title">📊 График максимума</div>
-            <div id="maxTestChart"></div>
+            <div class="card">
+                <div class="section-title">📅 Календарь</div>
+                <div class="input-group">
+                    <input type="month" id="monthSelect" class="form-input">
+                </div>
+                <div class="calendar" id="monthCalendar"></div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">⚖️ Вес и тренд</div>
+                <div class="input-group">
+                    <input type="number" id="weight" class="form-input" placeholder="Вес, кг" step="0.1">
+                    <button class="btn btn-primary btn-small" onclick="saveWeight()">Сохранить</button>
+                </div>
+                <div id="weightTrend"></div>
+            </div>
+
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div class="section-title" style="margin-bottom: 0;">📈 График отжиманий</div>
+                    <select id="chartPeriod" onchange="updateChart()" style="padding: 8px 12px; border: 2px solid var(--border); border-radius: 8px; background: var(--bg); cursor: pointer;">
+                        <option value="7">7 дней</option>
+                        <option value="14">14 дней</option>
+                        <option value="30">30 дней</option>
+                        <option value="all">Все</option>
+                    </select>
+                </div>
+                <div class="chart-container" id="chart"></div>
+            </div>
+
+            <div class="card">
+                <div class="section-title">📊 График максимума</div>
+                <div id="maxTestChart"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Storage
-        const getWorkouts = () => JSON.parse(localStorage.getItem('workouts') || '{}');
-        const saveWorkouts = (data) => localStorage.setItem('workouts', JSON.stringify(data));
-        const getWeights = () => JSON.parse(localStorage.getItem('weights') || '[]');
-        const saveWeights = (data) => localStorage.setItem('weights', JSON.stringify(data));
-        const getMaxTests = () => JSON.parse(localStorage.getItem('maxTests') || '[]');
-        const saveMaxTests = (data) => localStorage.setItem('maxTests', JSON.stringify(data));
+        // Firebase Configuration - ДОБАВЬТЕ СВОЙ КОНФИГ ОТСЮДА: https://console.firebase.google.com/
+        const firebaseConfig = {
+            apiKey: "AIzaSyDemoKeyChange123456789",
+            authDomain: "demo-project.firebaseapp.com",
+            projectId: "demo-project",
+            storageBucket: "demo-project.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:abc123def456"
+        };
 
-        // Initialize
-        function init() {
+        let app, auth, db, currentUser;
+        let isSignupMode = false;
+
+        // Initialize Firebase
+        try {
+            app = firebase.initializeApp(firebaseConfig);
+            auth = firebase.auth();
+            db = firebase.firestore();
+        } catch (e) {
+            console.log("Используется локальный режим (Firebase не настроен)");
+            useLocalStorage = true;
+        }
+
+        let useLocalStorage = false;
+
+        // Auth State
+        if (auth) {
+            auth.onAuthStateChanged((user) => {
+                currentUser = user;
+                if (user) {
+                    showAppScreen();
+                    init();
+                } else {
+                    showAuthScreen();
+                }
+            });
+        }
+
+        function showAuthScreen() {
+            document.getElementById('authScreen').style.display = 'flex';
+            document.getElementById('appScreen').style.display = 'none';
+        }
+
+        function showAppScreen() {
+            document.getElementById('authScreen').style.display = 'none';
+            document.getElementById('appScreen').style.display = 'block';
+        }
+
+        function toggleAuthMode() {
+            isSignupMode = !isSignupMode;
+            document.getElementById('loginBtn').textContent = isSignupMode ? 'Зарегистрироваться' : 'Вход';
+            document.getElementById('signupBtn').textContent = isSignupMode ? 'Есть аккаунт? Вход' : 'Нет аккаунта? Регистрация';
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('authEmail').value;
+            const password = document.getElementById('authPassword').value;
+            const errorDiv = document.getElementById('authError');
+
+            if (!email || !password) {
+                errorDiv.textContent = 'Заполните все поля';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            try {
+                if (isSignupMode) {
+                    await auth.createUserWithEmailAndPassword(email, password);
+                } else {
+                    await auth.signInWithEmailAndPassword(email, password);
+                }
+                errorDiv.style.display = 'none';
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        function handleLogout() {
+            auth.signOut();
+            document.getElementById('authEmail').value = '';
+            document.getElementById('authPassword').value = '';
+            document.getElementById('authError').style.display = 'none';
+        }
+
+        // Data Management
+        async function getWorkouts() {
+            if (useLocalStorage) {
+                return JSON.parse(localStorage.getItem('workouts') || '{}');
+            }
+            const doc = await db.collection('users').doc(currentUser.uid).collection('workouts').doc('data').get();
+            return doc.exists ? doc.data().workouts || {} : {};
+        }
+
+        async function saveWorkouts(data) {
+            if (useLocalStorage) {
+                localStorage.setItem('workouts', JSON.stringify(data));
+                return;
+            }
+            await db.collection('users').doc(currentUser.uid).collection('workouts').doc('data').set({ workouts: data }, { merge: true });
+        }
+
+        async function getWeights() {
+            if (useLocalStorage) {
+                return JSON.parse(localStorage.getItem('weights') || '[]');
+            }
+            const doc = await db.collection('users').doc(currentUser.uid).collection('data').doc('weights').get();
+            return doc.exists ? doc.data().weights || [] : [];
+        }
+
+        async function saveWeights(data) {
+            if (useLocalStorage) {
+                localStorage.setItem('weights', JSON.stringify(data));
+                return;
+            }
+            await db.collection('users').doc(currentUser.uid).collection('data').doc('weights').set({ weights: data }, { merge: true });
+        }
+
+        async function getMaxTests() {
+            if (useLocalStorage) {
+                return JSON.parse(localStorage.getItem('maxTests') || '[]');
+            }
+            const doc = await db.collection('users').doc(currentUser.uid).collection('data').doc('maxTests').get();
+            return doc.exists ? doc.data().maxTests || [] : [];
+        }
+
+        async function saveMaxTests(data) {
+            if (useLocalStorage) {
+                localStorage.setItem('maxTests', JSON.stringify(data));
+                return;
+            }
+            await db.collection('users').doc(currentUser.uid).collection('data').doc('maxTests').set({ maxTests: data }, { merge: true });
+        }
+
+        // App Functions
+        async function init() {
             const now = new Date();
             document.getElementById('monthSelect').value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
             
@@ -525,7 +710,7 @@
             btn.closest('.set-row').remove();
         }
 
-        function saveWorkout() {
+        async function saveWorkout() {
             const rows = document.querySelectorAll('.set-row');
             if (rows.length === 0) {
                 alert('Добавьте хотя бы один подход');
@@ -535,7 +720,7 @@
             let totalReps = 0;
             const setDetails = [];
 
-            rows.forEach((row, idx) => {
+            rows.forEach((row) => {
                 const input = row.querySelector('.set-input');
                 const difficulty = row.querySelector('.difficulty-select').value;
                 const reps = parseInt(input.value) || 0;
@@ -549,9 +734,9 @@
             }
 
             const today = new Date().toISOString().split('T')[0];
-            const workouts = getWorkouts();
+            const workouts = await getWorkouts();
             workouts[today] = { reps: totalReps, sets: setDetails, type: 'regular', timestamp: Date.now() };
-            saveWorkouts(workouts);
+            await saveWorkouts(workouts);
 
             clearSetInputs();
             updateStats();
@@ -561,7 +746,7 @@
             alert(`✅ Записано ${totalReps} отжиманий!`);
         }
 
-        function saveMaxTest() {
+        async function saveMaxTest() {
             const input = document.getElementById('maxTestReps');
             const reps = parseInt(input.value);
 
@@ -571,14 +756,13 @@
             }
 
             const today = new Date().toISOString().split('T')[0];
-            const maxTests = getMaxTests();
+            const maxTests = await getMaxTests();
             maxTests.push({ date: today, reps, timestamp: Date.now() });
-            saveMaxTests(maxTests);
+            await saveMaxTests(maxTests);
 
-            // Mark as workout done
-            const workouts = getWorkouts();
+            const workouts = await getWorkouts();
             workouts[today] = { reps, sets: [{ reps, difficulty: 'regular' }], type: 'max_test', timestamp: Date.now() };
-            saveWorkouts(workouts);
+            await saveWorkouts(workouts);
 
             input.value = '';
             updateStats();
@@ -589,11 +773,11 @@
             alert('✅ Максимум записан!');
         }
 
-        function markMissed() {
+        async function markMissed() {
             const today = new Date().toISOString().split('T')[0];
-            const workouts = getWorkouts();
+            const workouts = await getWorkouts();
             workouts[today] = { reps: 0, sets: [], type: 'missed', timestamp: Date.now() };
-            saveWorkouts(workouts);
+            await saveWorkouts(workouts);
 
             clearSetInputs();
             updateStats();
@@ -606,7 +790,7 @@
             document.querySelectorAll('.set-input').forEach(input => input.value = '');
         }
 
-        function saveWeight() {
+        async function saveWeight() {
             const input = document.getElementById('weight');
             const weight = parseFloat(input.value);
 
@@ -616,39 +800,29 @@
             }
 
             const today = new Date().toISOString().split('T')[0];
-            const weights = getWeights();
+            const weights = await getWeights();
             weights.push({ date: today, weight, timestamp: Date.now() });
-            saveWeights(weights);
+            await saveWeights(weights);
 
             input.value = '';
             updateWeightTrend();
             alert('✅ Вес записан!');
         }
 
-        function updateMaxTestAlert() {
-            const workouts = getWorkouts();
+        async function updateMaxTestAlert() {
+            const workouts = await getWorkouts();
             const total = Object.values(workouts).reduce((sum, w) => sum + (w.reps || 0), 0);
             const alert = document.getElementById('maxTestAlert');
             
-            // Check if next milestone requires max test
-            const nextMilestone = Math.ceil(total / 500) * 500;
-            const maxTests = getMaxTests();
-            const lastMaxTest = maxTests[maxTests.length - 1];
-            
-            if (total >= 500 && (!lastMaxTest || lastMaxTest.reps !== undefined)) {
-                const lastWorkoutDate = Math.max(...Object.values(workouts).map(w => w.timestamp || 0));
-                const daysSinceLastWorkout = (Date.now() - lastWorkoutDate) / (1000 * 60 * 60 * 24);
-                
-                if (total % 500 >= 450) { // Near milestone
-                    alert.style.display = 'block';
-                } else {
-                    alert.style.display = 'none';
-                }
+            if (total >= 500 && total % 500 >= 450) {
+                alert.style.display = 'block';
+            } else {
+                alert.style.display = 'none';
             }
         }
 
-        function updateStats() {
-            const workouts = getWorkouts();
+        async function updateStats() {
+            const workouts = await getWorkouts();
             const workoutEntries = Object.entries(workouts).sort((a, b) => a[0].localeCompare(b[0]));
             
             let total = 0;
@@ -673,15 +847,12 @@
             document.getElementById('streak').textContent = streak;
             document.getElementById('successDays').textContent = successDays;
             document.getElementById('avgPerDay').textContent = avgPerDay;
-            document.getElementById('progressText').textContent = `${total} всего отжиманий • ${Math.ceil((total % 500) / 5)}% к следующей проверке`;
         }
 
-        function renderMonthCalendar() {
+        async function renderMonthCalendar() {
             const monthSelect = document.getElementById('monthSelect').value;
             const [year, month] = monthSelect.split('-');
-            const monthDate = new Date(year, month - 1, 1);
-            const workouts = getWorkouts();
-            const maxTests = getMaxTests();
+            const workouts = await getWorkouts();
 
             const monthCalendar = document.getElementById('monthCalendar');
             monthCalendar.innerHTML = '';
@@ -712,15 +883,12 @@
                     }
                 }
 
-                dayElement.addEventListener('click', () => showDayDetails(dateStr));
+                dayElement.addEventListener('click', () => showDayDetails(dateStr, workout));
                 monthCalendar.appendChild(dayElement);
             }
         }
 
-        function showDayDetails(dateStr) {
-            const workouts = getWorkouts();
-            const workout = workouts[dateStr];
-
+        function showDayDetails(dateStr, workout) {
             if (!workout) {
                 alert('Нет данных на эту дату');
                 return;
@@ -730,8 +898,7 @@
             if (workout.type === 'missed') {
                 details += 'Статус: Пропущено ❌';
             } else if (workout.type === 'max_test') {
-                details += `Тип: Проверка максимума 📊\n`;
-                details += `Повторения: ${workout.reps}`;
+                details += `Тип: Проверка максимума 📊\nПовторения: ${workout.reps}`;
             } else {
                 details += `Всего: ${workout.reps}\n`;
                 if (workout.sets && workout.sets.length > 0) {
@@ -744,9 +911,9 @@
             alert(details);
         }
 
-        function updateChart() {
+        async function updateChart() {
             const period = document.getElementById('chartPeriod').value;
-            const workouts = getWorkouts();
+            const workouts = await getWorkouts();
             const chart = document.getElementById('chart');
             chart.innerHTML = '';
 
@@ -780,8 +947,8 @@
             });
         }
 
-        function updateMaxTestChart() {
-            const maxTests = getMaxTests();
+        async function updateMaxTestChart() {
+            const maxTests = await getMaxTests();
             const container = document.getElementById('maxTestChart');
 
             if (maxTests.length === 0) {
@@ -791,7 +958,7 @@
 
             const maxReps = Math.max(...maxTests.map(t => t.reps)) * 1.1;
 
-            container.innerHTML = maxTests.map((test, idx) => {
+            container.innerHTML = maxTests.map((test) => {
                 const date = new Date(test.date);
                 const formatted = date.toLocaleDateString('ru-RU');
                 const height = (test.reps / maxReps) * 100;
@@ -808,8 +975,8 @@
             }).join('');
         }
 
-        function updateWeightTrend() {
-            const weights = getWeights();
+        async function updateWeightTrend() {
+            const weights = await getWeights();
             const container = document.getElementById('weightTrend');
 
             if (weights.length === 0) {
@@ -829,8 +996,8 @@
                 return `
                     <div class="weight-point">
                         <div>
-                            <div class="weight-date">${date}</div>
-                            <div class="weight-change" style="color: ${diffColor};">${diffStr} кг</div>
+                            <div style="font-weight: 600; color: var(--text);">${date}</div>
+                            <div style="color: ${diffColor}; font-size: 0.9em;">${diffStr} кг</div>
                         </div>
                         <div class="weight-value">${w.weight.toFixed(1)} кг</div>
                     </div>
@@ -840,9 +1007,11 @@
 
         // Event listeners
         document.getElementById('monthSelect').addEventListener('change', renderMonthCalendar);
-
-        init();
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && document.getElementById('authScreen').style.display !== 'none') {
+                handleLogin();
+            }
+        });
     </script>
 </body>
-
 </html>
