@@ -542,7 +542,7 @@
         let firebaseUser = null;
         let currentUser = null;
         let isSignupMode = false;
-        let useLocalStorage = true;
+        let useLocalStorage = false;
 
         // Initialize Firebase
         try {
@@ -636,8 +636,10 @@
             }
             try {
                 await firebase.database().ref('users/' + currentUser + '/workouts').set(data);
+                console.log("✅ Тренировки сохранены в Firebase");
             } catch (e) {
                 console.error("Ошибка при сохранении тренировок:", e);
+                alert('Ошибка при сохранении данных');
             }
         }
 
@@ -661,6 +663,7 @@
             }
             try {
                 await firebase.database().ref('users/' + currentUser + '/weights').set(data);
+                console.log("✅ Вес сохранен в Firebase");
             } catch (e) {
                 console.error("Ошибка при сохранении веса:", e);
             }
@@ -686,6 +689,7 @@
             }
             try {
                 await firebase.database().ref('users/' + currentUser + '/maxTests').set(data);
+                console.log("✅ Максимум сохранен в Firebase");
             } catch (e) {
                 console.error("Ошибка при сохранении максимума:", e);
             }
