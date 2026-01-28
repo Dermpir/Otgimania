@@ -708,6 +708,10 @@
             
             console.log("8️⃣ Обновляем вес...");
             await updateWeightTrend();
+
+            console.log("📊 Рисуем график за период:", period, "записей:", entries.length);
+            console.log("📊 Max повторений:", maxReps);
+
             
             console.log("=== ИНИЦИАЛИЗАЦИЯ ЗАВЕРШЕНА, всего тренировок: " + data.workouts.length + " ===");
         }
@@ -920,14 +924,14 @@
                     else if (workout.total > 0) dayElement.classList.add('completed');
                 }
 
-                dayElement.addEventListener('click', () => showDayDetails(dateStr, workout));
+                dayElement.addEventListener('click', (e) => showDayDetails(e, dateStr, workout));
                 monthCalendar.appendChild(dayElement);
             }
         }
 
-        function showDayDetails(dateStr, workout) {
+        function showDayDetails(e, dateStr, workout) {
+            e.stopPropagation();  // ✅ Прерывает открытие истории
             if (!workout) {
-                alert('Нет данных на эту дату');
                 return;
             }
 
