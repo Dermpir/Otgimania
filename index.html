@@ -672,14 +672,17 @@
             
             // СНАЧАЛА загружаем данные!
             await loadFirebaseData();
+            console.log("Данные загружены, начинаем рендер...");
             
+            // Теперь рендерим все
             addSet();
-            renderMonthCalendar();
-            updateStats();
-            updateChart();
-            updateMaxTestChart();
-            updateMaxTestAlert();
-            updateWeightTrend();
+            await renderMonthCalendar();
+            await updateStats();
+            await updateChart();
+            await updateMaxTestChart();
+            await updateMaxTestAlert();
+            await updateWeightTrend();
+            console.log("Все отрендерено!");
         }
 
         function addSet() {
