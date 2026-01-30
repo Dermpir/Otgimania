@@ -297,6 +297,22 @@
             font-weight: 600;
         }
 
+        /* КАЛЕНДАРЬ */
+        .calendar-header {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .calendar-weekday {
+            text-align: center;
+            font-weight: 700;
+            color: var(--text-light);
+            font-size: 0.85em;
+            padding: 8px 0;
+        }
+
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -320,6 +336,11 @@
 
         .calendar-day:hover {
             transform: scale(1.05);
+        }
+
+        .calendar-day.other-month {
+            color: var(--text-light);
+            opacity: 0.5;
         }
 
         .calendar-day.completed {
@@ -374,134 +395,99 @@
             font-weight: 700;
         }
 
-        /* МОДАЛЬНОЕ ОКНО */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
+        /* ИСТОРИЯ ТРЕНИРОВОК */
+        .history-item {
             display: flex;
-        }
-
-        .modal-content {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 24px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-title {
-            font-size: 1.3em;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text);
-        }
-
-        .modal-section {
-            margin-bottom: 16px;
-        }
-
-        .modal-label {
-            display: block;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: var(--bg);
+            border-radius: 8px;
             margin-bottom: 8px;
+            border-left: 4px solid var(--primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: #e6f0ff;
+        }
+
+        .history-item-date {
             font-weight: 600;
             color: var(--text);
+        }
+
+        .history-item-time {
+            font-size: 0.85em;
+            color: var(--text-light);
+        }
+
+        .history-item-reps {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        .history-details {
+            display: none;
+            padding: 12px;
+            background: white;
+            border-radius: 8px;
+            margin-top: 8px;
+            border: 2px solid var(--border);
+        }
+
+        .history-details.active {
+            display: block;
+        }
+
+        .history-set {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px;
+            margin: 4px 0;
+            background: var(--bg);
+            border-radius: 6px;
             font-size: 0.9em;
         }
 
-        .modal-input {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 0.95em;
-            font-family: inherit;
-            margin-bottom: 8px;
-        }
-
-        .modal-input:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        .modal-sets {
-            background: var(--bg);
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 16px;
-        }
-
-        .modal-set {
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 8px;
-            margin-bottom: 8px;
-            padding: 12px;
-            background: white;
-            border-radius: 6px;
-            border: 2px solid var(--border);
-            align-items: center;
-        }
-
-        .modal-set:last-child {
-            margin-bottom: 0;
-        }
-
-        .modal-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .btn-modal {
-            padding: 10px 16px;
-            border: none;
-            border-radius: 8px;
+        .history-set-label {
             font-weight: 600;
-            cursor: pointer;
-            font-size: 0.95em;
-        }
-
-        .btn-modal-save {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-modal-save:hover {
-            background: #38a169;
-        }
-
-        .btn-modal-cancel {
-            background: var(--border);
             color: var(--text);
         }
 
-        .btn-modal-cancel:hover {
-            background: var(--text-light);
+        .history-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .history-btn {
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+
+        .history-btn-edit {
+            background: var(--primary);
             color: white;
         }
 
-        .btn-modal-delete {
+        .history-btn-edit:hover {
+            background: var(--primary-dark);
+        }
+
+        .history-btn-delete {
             background: var(--danger);
             color: white;
-            grid-column: 1 / -1;
         }
 
-        .btn-modal-delete:hover {
+        .history-btn-delete:hover {
             background: #e53e3e;
         }
 
@@ -592,7 +578,20 @@
                 <div class="input-group">
                     <input type="month" id="monthSelect" class="form-input">
                 </div>
+                <div class="calendar-header">
+                    <div class="calendar-weekday">ПН</div>
+                    <div class="calendar-weekday">ВТ</div>
+                    <div class="calendar-weekday">СР</div>
+                    <div class="calendar-weekday">ЧТ</div>
+                    <div class="calendar-weekday">ПТ</div>
+                    <div class="calendar-weekday">СБ</div>
+                    <div class="calendar-weekday">ВС</div>
+                </div>
                 <div class="calendar" id="monthCalendar"></div>
+            </div>
+            <div class="card">
+                <div class="section-title">📊 История тренировок</div>
+                <div id="historyContainer"></div>
             </div>
             <div class="card">
                 <div class="section-title">⚖️ Вес и тренд</div>
@@ -621,35 +620,6 @@
                 <div class="section-title">📊 График максимума</div>
                 <div id="maxTestChart"></div>
             </div>
-        </div>
-    </div>
-
-    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ -->
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-title" id="modalTitle">✏️ Редактировать тренировку</div>
-            
-            <div class="modal-section">
-                <label class="modal-label">Дата</label>
-                <input type="date" id="modalDate" class="modal-input">
-            </div>
-
-            <div class="modal-section">
-                <label class="modal-label">Время</label>
-                <input type="time" id="modalTime" class="modal-input">
-            </div>
-
-            <div class="modal-section">
-                <label class="modal-label">Подходы</label>
-                <div class="modal-sets" id="modalSetsContainer"></div>
-                <button class="btn btn-primary btn-small" onclick="addModalSet()" style="width: 100%; margin-top: 8px;">➕ Добавить подход</button>
-            </div>
-
-            <div class="modal-buttons">
-                <button class="btn-modal btn-modal-save" onclick="saveEditedWorkout()">✅ Сохранить</button>
-                <button class="btn-modal btn-modal-cancel" onclick="closeEditModal()">❌ Отмена</button>
-            </div>
-            <button class="btn-modal btn-modal-delete" onclick="deleteWorkout()">🗑️ Удалить тренировку</button>
         </div>
     </div>
 
@@ -776,6 +746,8 @@
                                 ...w,
                                 date: normalizeDate(w.date)
                             }));
+                        } else {
+                            data.workouts = [];
                         }
                         
                         if (data.weights && Array.isArray(data.weights)) {
@@ -783,6 +755,8 @@
                                 ...wt,
                                 date: normalizeDate(wt.date)
                             }));
+                        } else {
+                            data.weights = [];
                         }
                         
                         console.log("✅ Данные загружены:", data.workouts.length, "тренировок");
@@ -829,6 +803,7 @@
             await loadFirebaseData();
             addSet();
             await renderMonthCalendar();
+            await updateHistory();
             await updateStats();
             await updateChart();
             await updateMaxTestChart();
@@ -906,6 +881,7 @@
             clearSetInputs();
             await updateStats();
             await renderMonthCalendar();
+            await updateHistory();
             await updateChart();
             await updateMaxTestAlert();
             alert(`✅ Записано ${totalReps} отжиманий!`);
@@ -935,6 +911,7 @@
             input.value = '';
             await updateStats();
             await renderMonthCalendar();
+            await updateHistory();
             await updateChart();
             await updateMaxTestChart();
             await updateMaxTestAlert();
@@ -957,6 +934,7 @@
             clearSetInputs();
             await updateStats();
             await renderMonthCalendar();
+            await updateHistory();
             await updateChart();
             alert('⚠️ День помечен как пропущенный');
         }
@@ -1028,13 +1006,20 @@
             monthCalendar.innerHTML = '';
 
             const firstDay = new Date(year, month - 1, 1).getDay();
+            const correctedFirstDay = firstDay === 0 ? 6 : firstDay - 1; // ПН = 0
             const daysInMonth = new Date(year, month, 0).getDate();
+            const daysInPrevMonth = new Date(year, month - 1, 0).getDate();
 
-            for (let i = 0; i < firstDay; i++) {
+            // Дни из предыдущего месяца
+            for (let i = correctedFirstDay - 1; i >= 0; i--) {
+                const day = daysInPrevMonth - i;
                 const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day other-month';
+                emptyDay.textContent = day;
                 monthCalendar.appendChild(emptyDay);
             }
 
+            // Дни текущего месяца
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const workout = data.workouts.find(w => w.date === dateStr);
@@ -1048,116 +1033,141 @@
                     else if (workout.total > 0) dayElement.classList.add('completed');
                 }
 
-                dayElement.addEventListener('click', () => openEditModal(dateStr, workout));
+                dayElement.addEventListener('click', () => scrollToWorkout(dateStr));
                 monthCalendar.appendChild(dayElement);
             }
-        }
 
-        // МОДАЛЬНОЕ ОКНО
-        function openEditModal(dateStr, workout) {
-            editingDate = dateStr;
-            const modal = document.getElementById('editModal');
-
-            document.getElementById('modalDate').value = dateStr;
-            
-            if (workout) {
-                document.getElementById('modalTime').value = workout.time || '12:00';
-                renderModalSets(workout.sets || []);
-            } else {
-                document.getElementById('modalTime').value = '12:00';
-                renderModalSets([]);
-            }
-
-            modal.classList.add('active');
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('active');
-            editingDate = null;
-        }
-
-        function renderModalSets(sets) {
-            const container = document.getElementById('modalSetsContainer');
-            container.innerHTML = '';
-
-            if (sets.length === 0) {
-                addModalSet();
-            } else {
-                sets.forEach((set, idx) => {
-                    const setDiv = document.createElement('div');
-                    setDiv.className = 'modal-set';
-                    setDiv.innerHTML = `
-                        <input type="number" class="modal-input" value="${set.reps}" min="0" style="margin-bottom: 0;" placeholder="Повторения">
-                        <select class="difficulty-select" style="margin-bottom: 0;">
-                            <option value="regular" ${set.difficulty === 'regular' ? 'selected' : ''}>Обычные</option>
-                            <option value="knee" ${set.difficulty === 'knee' ? 'selected' : ''}>От колен</option>
-                        </select>
-                        <button class="delete-btn" onclick="this.parentElement.remove()">❌</button>
-                    `;
-                    container.appendChild(setDiv);
-                });
+            // Дни из следующего месяца
+            const totalCells = monthCalendar.children.length;
+            const remainingCells = 42 - totalCells;
+            for (let day = 1; day <= remainingCells; day++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'calendar-day other-month';
+                emptyDay.textContent = day;
+                monthCalendar.appendChild(emptyDay);
             }
         }
 
-        function addModalSet() {
-            const container = document.getElementById('modalSetsContainer');
-            const setDiv = document.createElement('div');
-            setDiv.className = 'modal-set';
-            setDiv.innerHTML = `
-                <input type="number" class="modal-input" placeholder="Повторения" min="0" style="margin-bottom: 0;">
-                <select class="difficulty-select" style="margin-bottom: 0;">
-                    <option value="regular">Обычные</option>
-                    <option value="knee">От колен</option>
-                </select>
-                <button class="delete-btn" onclick="this.parentElement.remove()">❌</button>
-            `;
-            container.appendChild(setDiv);
+        function scrollToWorkout(dateStr) {
+            const item = document.querySelector(`[data-workout-date="${dateStr}"]`);
+            if (item) {
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                item.querySelector('.history-details').classList.add('active');
+            }
         }
 
-        async function saveEditedWorkout() {
-            const dateStr = document.getElementById('modalDate').value;
-            const timeStr = document.getElementById('modalTime').value;
-            const sets = [];
-            let totalReps = 0;
+        async function updateHistory() {
+            const container = document.getElementById('historyContainer');
+            const sorted = [...data.workouts].sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            document.querySelectorAll('#modalSetsContainer .modal-set').forEach((setDiv) => {
-                const reps = parseInt(setDiv.querySelector('.modal-input').value) || 0;
-                const difficulty = setDiv.querySelector('.difficulty-select').value;
-                sets.push({ reps, difficulty });
-                totalReps += reps;
-            });
-
-            if (totalReps === 0) {
-                alert('Добавьте хотя бы один подход с повторениями');
+            if (sorted.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-light); text-align: center;">Нет тренировок</p>';
                 return;
             }
 
-            data.workouts = data.workouts.filter(w => w.date !== editingDate);
-            data.workouts.push({
-                date: dateStr,
-                time: timeStr,
-                total: totalReps,
-                sets: sets,
-                type: 'regular',
-                timestamp: Date.now()
-            });
+            container.innerHTML = sorted.map((workout, idx) => {
+                const date = new Date(workout.date);
+                const dateFormatted = date.toLocaleDateString('ru-RU', { weekday: 'short', month: 'short', day: 'numeric' });
+                const timeStr = workout.time || '12:00';
+                
+                let statusText = '';
+                let statusClass = 'completed';
+                if (workout.type === 'missed') {
+                    statusText = '❌ Пропуск';
+                    statusClass = 'missed';
+                } else if (workout.type === 'max_test') {
+                    statusText = '📊 Максимум';
+                    statusClass = 'max-test';
+                } else {
+                    statusText = `${workout.total} повт.`;
+                }
 
-            await saveUserData();
-            closeEditModal();
-            await updateStats();
-            await renderMonthCalendar();
-            await updateChart();
-            alert('✅ Тренировка обновлена!');
+                const setsHTML = (workout.sets || []).map((set, i) => `
+                    <div class="history-set">
+                        <span class="history-set-label">Подход ${i + 1}:</span>
+                        <span>${set.reps} повт. (${set.difficulty === 'knee' ? 'От колен' : 'Обычные'})</span>
+                    </div>
+                `).join('');
+
+                return `
+                    <div class="history-item" data-workout-date="${workout.date}">
+                        <div>
+                            <div class="history-item-date">${dateFormatted}</div>
+                            <div class="history-item-time">${timeStr}</div>
+                        </div>
+                        <div class="history-item-reps">${statusText}</div>
+                    </div>
+                    <div class="history-details">
+                        ${setsHTML}
+                        <div class="history-buttons">
+                            <button class="history-btn history-btn-edit" onclick="editWorkout('${workout.date}')">✏️ Редактировать</button>
+                            <button class="history-btn history-btn-delete" onclick="deleteWorkoutHistory('${workout.date}')">🗑️ Удалить</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Добавляем обработчики клика
+            document.querySelectorAll('.history-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (!e.target.closest('.history-btn')) {
+                        const details = this.nextElementSibling;
+                        details.classList.toggle('active');
+                    }
+                });
+            });
         }
 
-        async function deleteWorkout() {
+        async function editWorkout(dateStr) {
+            const workout = data.workouts.find(w => w.date === dateStr);
+            if (!workout) return;
+
+            document.getElementById('workoutDate').value = dateStr;
+            document.getElementById('workoutTime').value = workout.time || '12:00';
+
+            // Очищаем старые подходы
+            document.getElementById('setsContainer').innerHTML = '';
+
+            // Добавляем подходы из тренировки
+            if (workout.sets && workout.sets.length > 0) {
+                workout.sets.forEach((set) => {
+                    const container = document.getElementById('setsContainer');
+                    const setNum = container.children.length + 1;
+                    const setRow = document.createElement('div');
+                    setRow.className = 'set-row';
+                    setRow.innerHTML = `
+                        <input type="number" class="set-input" value="${set.reps}" min="0">
+                        <select class="difficulty-select">
+                            <option value="regular" ${set.difficulty === 'regular' ? 'selected' : ''}>Обычные</option>
+                            <option value="knee" ${set.difficulty === 'knee' ? 'selected' : ''}>От колен</option>
+                        </select>
+                        <div style="font-size: 0.9em; color: var(--text-light); text-align: center;">${set.difficulty === 'knee' ? 'От колен' : 'Обычные'}</div>
+                        <button class="delete-btn" onclick="deleteSet(this)">❌</button>
+                    `;
+                    
+                    const select = setRow.querySelector('.difficulty-select');
+                    const label = setRow.querySelector('div:nth-child(3)');
+                    select.addEventListener('change', () => {
+                        label.textContent = select.value === 'knee' ? 'От колен' : 'Обычные';
+                    });
+                    
+                    container.appendChild(setRow);
+                });
+            } else {
+                addSet();
+            }
+
+            alert('✏️ Отредактируй данные и нажми "Записать" для сохранения');
+        }
+
+        async function deleteWorkoutHistory(dateStr) {
             if (!confirm('Удалить тренировку?')) return;
 
-            data.workouts = data.workouts.filter(w => w.date !== editingDate);
+            data.workouts = data.workouts.filter(w => w.date !== dateStr);
             await saveUserData();
-            closeEditModal();
             await updateStats();
             await renderMonthCalendar();
+            await updateHistory();
             await updateChart();
             alert('✅ Тренировка удалена!');
         }
@@ -1179,7 +1189,6 @@
             const labels = entries.map(w => new Date(w.date).getDate());
             const pushups_data = entries.map(w => w.total || 0);
             
-            // МАКСИМУМ - берём только max_test
             const maxTests = data.workouts.filter(w => w.type === 'max_test').sort((a, b) => a.date.localeCompare(b.date));
             let maxTestData = new Array(labels.length).fill(null);
             
@@ -1190,7 +1199,6 @@
                 }
             });
 
-            // ВЕС - интерполируем данные веса на дни тренировок
             let weightData = new Array(labels.length).fill(null);
             let lastWeight = null;
             
@@ -1338,7 +1346,7 @@
                             <span style="font-weight: 600;">${formatted}</span>
                             <span style="color: var(--warning); font-weight: 700;">${test.total} повт.</span>
                         </div>
-                        <div class="chart-column max-test" style="height: 30px; border-radius: 8px;"></div>
+                        <div class="chart-column max-test" style="height: 30px; border-radius: 8px; background: linear-gradient(to top, var(--warning), #f6ad55);"></div>
                     </div>
                 `;
             }).join('');
@@ -1376,9 +1384,6 @@
             if (e.key === 'Enter' && document.getElementById('authScreen').style.display !== 'none') {
                 handleLogin();
             }
-        });
-        document.getElementById('editModal').addEventListener('click', (e) => {
-            if (e.target.id === 'editModal') closeEditModal();
         });
     </script>
 </body>
