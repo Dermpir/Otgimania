@@ -7,6 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -340,32 +341,9 @@
         }
 
         .chart-container {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
-        }
-
-        .chart-bar {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-        }
-
-        .chart-column {
-            background: linear-gradient(to top, var(--primary), var(--primary-dark));
-            border-radius: 4px 4px 0 0;
-            min-height: 4px;
-            width: 100%;
-        }
-
-        .chart-column.max-test {
-            background: linear-gradient(to top, var(--warning), #f6ad55);
-        }
-
-        .chart-label {
-            font-size: 0.8em;
-            color: var(--text-light);
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
         }
 
         .alert {
@@ -394,6 +372,136 @@
         .weight-value {
             color: var(--primary);
             font-weight: 700;
+        }
+
+        /* МОДАЛЬНОЕ ОКНО */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text);
+        }
+
+        .modal-section {
+            margin-bottom: 16px;
+        }
+
+        .modal-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 0.9em;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.95em;
+            font-family: inherit;
+            margin-bottom: 8px;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .modal-sets {
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .modal-set {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 8px;
+            margin-bottom: 8px;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            align-items: center;
+        }
+
+        .modal-set:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-modal {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.95em;
+        }
+
+        .btn-modal-save {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-modal-save:hover {
+            background: #38a169;
+        }
+
+        .btn-modal-cancel {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn-modal-cancel:hover {
+            background: var(--text-light);
+            color: white;
+        }
+
+        .btn-modal-delete {
+            background: var(--danger);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-modal-delete:hover {
+            background: #e53e3e;
         }
 
         @media (max-width: 600px) {
@@ -438,6 +546,10 @@
             </div>
             <div class="card">
                 <div class="section-title">🏋️ Добавить тренировку</div>
+                <div class="input-group">
+                    <input type="date" id="workoutDate" class="form-input">
+                    <input type="time" id="workoutTime" class="form-input">
+                </div>
                 <div id="setsContainer"></div>
                 <button class="btn btn-primary btn-small" onclick="addSet()">➕ Добавить подход</button>
                 <div class="btn-group">
@@ -448,10 +560,11 @@
             <div class="card">
                 <div class="section-title">⚡ Проверка максимума</div>
                 <div class="input-group">
+                    <input type="date" id="maxTestDate" class="form-input">
                     <input type="number" id="maxTestReps" class="form-input" placeholder="Макс отжиманий" min="0">
-                    <button class="btn btn-warning btn-small" onclick="saveMaxTest()">📊 Сохранить</button>
                 </div>
-                <div id="maxTestInfo" style="color: var(--text-light); text-align: center; padding: 12px;">Результаты максимум тестов здесь</div>
+                <button class="btn btn-warning" onclick="saveMaxTest()">📊 Сохранить максимум</button>
+                <div id="maxTestInfo" style="color: var(--text-light); text-align: center; padding: 12px; margin-top: 12px;">Результаты максимум тестов здесь</div>
             </div>
             <div class="card">
                 <div class="stats">
@@ -483,9 +596,10 @@
             <div class="card">
                 <div class="section-title">⚖️ Вес и тренд</div>
                 <div class="input-group">
+                    <input type="date" id="weightDate" class="form-input">
                     <input type="number" id="weight" class="form-input" placeholder="Вес, кг" step="0.1">
-                    <button class="btn btn-primary btn-small" onclick="saveWeight()">Сохранить</button>
                 </div>
+                <button class="btn btn-primary btn-small" onclick="saveWeight()">Сохранить вес</button>
                 <div id="weightTrend"></div>
             </div>
             <div class="card">
@@ -498,12 +612,43 @@
                         <option value="all">Все</option>
                     </select>
                 </div>
-                <div class="chart-container" id="chart"></div>
+                <div class="chart-container">
+                    <canvas id="chart"></canvas>
+                </div>
             </div>
             <div class="card">
                 <div class="section-title">📊 График максимума</div>
                 <div id="maxTestChart"></div>
             </div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО РЕДАКТИРОВАНИЯ -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">✏️ Редактировать тренировку</div>
+            
+            <div class="modal-section">
+                <label class="modal-label">Дата</label>
+                <input type="date" id="modalDate" class="modal-input">
+            </div>
+
+            <div class="modal-section">
+                <label class="modal-label">Время</label>
+                <input type="time" id="modalTime" class="modal-input">
+            </div>
+
+            <div class="modal-section">
+                <label class="modal-label">Подходы</label>
+                <div class="modal-sets" id="modalSetsContainer"></div>
+                <button class="btn btn-primary btn-small" onclick="addModalSet()" style="width: 100%; margin-top: 8px;">➕ Добавить подход</button>
+            </div>
+
+            <div class="modal-buttons">
+                <button class="btn-modal btn-modal-save" onclick="saveEditedWorkout()">✅ Сохранить</button>
+                <button class="btn-modal btn-modal-cancel" onclick="closeEditModal()">❌ Отмена</button>
+            </div>
+            <button class="btn-modal btn-modal-delete" onclick="deleteWorkout()">🗑️ Удалить тренировку</button>
         </div>
     </div>
 
@@ -522,23 +667,20 @@
         let currentUser = null;
         let isSignupMode = false;
         let data = { workouts: [], weights: [] };
+        let chartInstance = null;
+        let editingDate = null;
 
-        // ✅ ФУНКЦИЯ КОНВЕРТАЦИИ ДАТ
         function normalizeDate(dateStr) {
-            // Если дата уже в формате YYYY-MM-DD, вернуть как есть
             if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
                 return dateStr;
             }
-            
-            // Попытка парсить текстовую дату (Mon Jan 12 2026)
             try {
                 const date = new Date(dateStr);
                 if (!isNaN(date)) {
                     return date.toISOString().split('T')[0];
                 }
             } catch (e) {}
-            
-            return dateStr; // вернуть как есть, если не удалось парсить
+            return dateStr;
         }
 
         try {
@@ -556,7 +698,6 @@
                 currentUser = user.uid;
                 console.log("🔐 Пользователь вошёл:", currentUser);
                 showAppScreen();
-                console.log("⏳ Ждём 1 сек перед инициализацией...");
                 setTimeout(() => {
                     console.log("🚀 Запускаем init()...");
                     init();
@@ -629,7 +770,6 @@
                     if (snapshot.exists()) {
                         data = snapshot.val();
                         
-                        // 🔄 КОНВЕРТИРУЕМ ДАТЫ ВО ВСЕХ ТРЕНИРОВКАХ
                         if (data.workouts && Array.isArray(data.workouts)) {
                             data.workouts = data.workouts.map(w => ({
                                 ...w,
@@ -637,7 +777,6 @@
                             }));
                         }
                         
-                        // 🔄 КОНВЕРТИРУЕМ ДАТЫ ВО ВСЕХ ВЕСАХ
                         if (data.weights && Array.isArray(data.weights)) {
                             data.weights = data.weights.map(wt => ({
                                 ...wt,
@@ -645,13 +784,10 @@
                             }));
                         }
                         
-                        console.log("✅ УСПЕХ! Загружено workouts:", data.workouts ? data.workouts.length : 0);
-                        console.log("✅ УСПЕХ! Загружено weights:", data.weights ? data.weights.length : 0);
-                        console.log("📊 Первая тренировка дата:", data.workouts && data.workouts[0] ? data.workouts[0].date : 'нет');
-                        console.log("📊 Полные данные:", JSON.stringify(data).substring(0, 200));
+                        console.log("✅ Данные загружены:", data.workouts.length, "тренировок");
                     } else {
                         data = { workouts: [], weights: [] };
-                        console.log("ℹ️ Нет данных в Firebase, начинаем с нуля");
+                        console.log("ℹ️ Нет данных в Firebase");
                     }
                     resolve();
                 }, (error) => {
@@ -672,7 +808,7 @@
 
             try {
                 await firebase.database().ref('users/' + userId).set(data);
-                console.log("✅ Данные сохранены в Firebase");
+                console.log("✅ Данные сохранены");
             } catch (error) {
                 console.error("Ошибка сохранения:", error);
                 alert('Ошибка при сохранении данных');
@@ -680,40 +816,25 @@
         }
 
         async function init() {
-            console.log("=== НАЧАЛО ИНИЦИАЛИЗАЦИИ ===");
+            console.log("=== ИНИЦИАЛИЗАЦИЯ ===");
             const now = new Date();
             const monthInput = document.getElementById('monthSelect');
             monthInput.value = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
             
-            console.log("1️⃣ Начинаем загрузку Firebase...");
+            document.getElementById('workoutDate').valueAsDate = now;
+            document.getElementById('maxTestDate').valueAsDate = now;
+            document.getElementById('weightDate').valueAsDate = now;
+            
             await loadFirebaseData();
-            console.log("2️⃣ Данные загружены, workouts:", data.workouts);
-            console.log("2️⃣ Данные загружены, weights:", data.weights);
-            
-            console.log("3️⃣ Добавляем первый подход...");
             addSet();
-            
-            console.log("4️⃣ Рисуем календарь с " + data.workouts.length + " тренировками...");
             await renderMonthCalendar();
-            
-            console.log("5️⃣ Обновляем статистику...");
             await updateStats();
-            
-            console.log("6️⃣ Обновляем графики...");
             await updateChart();
             await updateMaxTestChart();
-            
-            console.log("7️⃣ Проверяем алерты...");
             await updateMaxTestAlert();
-            
-            console.log("8️⃣ Обновляем вес...");
             await updateWeightTrend();
 
-            console.log("📊 Рисуем график за период:", period, "записей:", entries.length);
-            console.log("📊 Max повторений:", maxReps);
-
-            
-            console.log("=== ИНИЦИАЛИЗАЦИЯ ЗАВЕРШЕНА, всего тренировок: " + data.workouts.length + " ===");
+            console.log("=== ГОТОВО ===");
         }
 
         function addSet() {
@@ -727,12 +848,12 @@
                     <option value="regular">Обычные</option>
                     <option value="knee">От колен</option>
                 </select>
-                <div style="font-size: 0.9em; color: var(--text-light); text-align: center;" class="set-difficulty-label">Обычные</div>
+                <div style="font-size: 0.9em; color: var(--text-light); text-align: center;">Обычные</div>
                 <button class="delete-btn" onclick="deleteSet(this)">❌</button>
             `;
             
             const select = setRow.querySelector('.difficulty-select');
-            const label = setRow.querySelector('.set-difficulty-label');
+            const label = setRow.querySelector('div:nth-child(3)');
             select.addEventListener('change', () => {
                 label.textContent = select.value === 'knee' ? 'От колен' : 'Обычные';
             });
@@ -745,7 +866,7 @@
         }
 
         async function saveWorkout() {
-            const rows = document.querySelectorAll('.set-row');
+            const rows = document.querySelectorAll('#setsContainer .set-row');
             if (rows.length === 0) {
                 alert('Добавьте хотя бы один подход');
                 return;
@@ -767,10 +888,13 @@
                 return;
             }
 
-            const today = new Date().toISOString().split('T')[0];
-            data.workouts = data.workouts.filter(w => w.date !== today);
+            const dateStr = document.getElementById('workoutDate').value || new Date().toISOString().split('T')[0];
+            const timeStr = document.getElementById('workoutTime').value || '12:00';
+
+            data.workouts = data.workouts.filter(w => w.date !== dateStr);
             data.workouts.push({ 
-                date: today, 
+                date: dateStr, 
+                time: timeStr,
                 total: totalReps, 
                 sets: setDetails, 
                 type: 'regular', 
@@ -789,16 +913,17 @@
         async function saveMaxTest() {
             const input = document.getElementById('maxTestReps');
             const reps = parseInt(input.value);
+            const dateStr = document.getElementById('maxTestDate').value || new Date().toISOString().split('T')[0];
 
             if (!reps || reps < 0) {
                 alert('Введите корректное количество');
                 return;
             }
 
-            const today = new Date().toISOString().split('T')[0];
-            data.workouts = data.workouts.filter(w => w.date !== today);
+            data.workouts = data.workouts.filter(w => w.date !== dateStr);
             data.workouts.push({ 
-                date: today, 
+                date: dateStr, 
+                time: '12:00',
                 total: reps, 
                 sets: [{ reps, difficulty: 'regular' }], 
                 type: 'max_test', 
@@ -820,6 +945,7 @@
             data.workouts = data.workouts.filter(w => w.date !== today);
             data.workouts.push({ 
                 date: today, 
+                time: '12:00',
                 total: 0, 
                 sets: [], 
                 type: 'missed', 
@@ -835,22 +961,22 @@
         }
 
         function clearSetInputs() {
-            document.querySelectorAll('.set-input').forEach(input => input.value = '');
+            document.querySelectorAll('#setsContainer .set-input').forEach(input => input.value = '');
         }
 
         async function saveWeight() {
             const input = document.getElementById('weight');
             const weight = parseFloat(input.value);
+            const dateStr = document.getElementById('weightDate').value || new Date().toISOString().split('T')[0];
 
             if (!weight || weight <= 0) {
                 alert('Введите вес');
                 return;
             }
 
-            const today = new Date().toISOString().split('T')[0];
-            data.weights = data.weights.filter(w => w.date !== today);
+            data.weights = data.weights.filter(w => w.date !== dateStr);
             data.weights.push({ 
-                date: today, 
+                date: dateStr, 
                 weight, 
                 timestamp: Date.now() 
             });
@@ -902,9 +1028,6 @@
             const firstDay = new Date(year, month - 1, 1).getDay();
             const daysInMonth = new Date(year, month, 0).getDate();
 
-            console.log("🗓️ Рисуем календарь на", year + '-' + month);
-            console.log("🗓️ Доступные даты тренировок:", data.workouts.map(w => w.date).slice(0, 5));
-
             for (let i = 0; i < firstDay; i++) {
                 const emptyDay = document.createElement('div');
                 monthCalendar.appendChild(emptyDay);
@@ -918,46 +1041,133 @@
                 dayElement.textContent = day;
 
                 if (workout) {
-                    console.log("✅ Найдена тренировка на:", dateStr);
                     if (workout.type === 'missed') dayElement.classList.add('missed');
                     else if (workout.type === 'max_test') dayElement.classList.add('max-test');
                     else if (workout.total > 0) dayElement.classList.add('completed');
                 }
 
-                dayElement.addEventListener('click', (e) => showDayDetails(e, dateStr, workout));
+                dayElement.addEventListener('click', () => openEditModal(dateStr, workout));
                 monthCalendar.appendChild(dayElement);
             }
         }
 
-        function showDayDetails(e, dateStr, workout) {
-            e.stopPropagation();  // ✅ Прерывает открытие истории
-            if (!workout) {
+        // МОДАЛЬНОЕ ОКНО
+        function openEditModal(dateStr, workout) {
+            editingDate = dateStr;
+            const modal = document.getElementById('editModal');
+
+            document.getElementById('modalDate').value = dateStr;
+            
+            if (workout) {
+                document.getElementById('modalTime').value = workout.time || '12:00';
+                renderModalSets(workout.sets || []);
+            } else {
+                document.getElementById('modalTime').value = '12:00';
+                renderModalSets([]);
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            editingDate = null;
+        }
+
+        function renderModalSets(sets) {
+            const container = document.getElementById('modalSetsContainer');
+            container.innerHTML = '';
+
+            if (sets.length === 0) {
+                addModalSet();
+            } else {
+                sets.forEach((set, idx) => {
+                    const setDiv = document.createElement('div');
+                    setDiv.className = 'modal-set';
+                    setDiv.innerHTML = `
+                        <input type="number" class="modal-input" value="${set.reps}" min="0" style="margin-bottom: 0;">
+                        <select class="difficulty-select" style="margin-bottom: 0;">
+                            <option value="regular" ${set.difficulty === 'regular' ? 'selected' : ''}>Обычные</option>
+                            <option value="knee" ${set.difficulty === 'knee' ? 'selected' : ''}>От колен</option>
+                        </select>
+                        <button class="delete-btn" onclick="this.parentElement.remove()">❌</button>
+                    `;
+                    container.appendChild(setDiv);
+                });
+            }
+        }
+
+        function addModalSet() {
+            const container = document.getElementById('modalSetsContainer');
+            const setDiv = document.createElement('div');
+            setDiv.className = 'modal-set';
+            setDiv.innerHTML = `
+                <input type="number" class="modal-input" placeholder="Повторения" min="0" style="margin-bottom: 0;">
+                <select class="difficulty-select" style="margin-bottom: 0;">
+                    <option value="regular">Обычные</option>
+                    <option value="knee">От колен</option>
+                </select>
+                <button class="delete-btn" onclick="this.parentElement.remove()">❌</button>
+            `;
+            container.appendChild(setDiv);
+        }
+
+        async function saveEditedWorkout() {
+            const dateStr = document.getElementById('modalDate').value;
+            const timeStr = document.getElementById('modalTime').value;
+            const sets = [];
+            let totalReps = 0;
+
+            document.querySelectorAll('#modalSetsContainer .modal-set').forEach((setDiv) => {
+                const reps = parseInt(setDiv.querySelector('.modal-input').value) || 0;
+                const difficulty = setDiv.querySelector('.difficulty-select').value;
+                sets.push({ reps, difficulty });
+                totalReps += reps;
+            });
+
+            if (totalReps === 0) {
+                alert('Добавьте хотя бы один подход с повторениями');
                 return;
             }
 
-            let details = `📅 ${dateStr}\n`;
-            if (workout.type === 'missed') {
-                details += 'Статус: Пропущено ❌';
-            } else if (workout.type === 'max_test') {
-                details += `Тип: Проверка максимума 📊\nПовторения: ${workout.total}`;
-            } else {
-                details += `Всего: ${workout.total}\n`;
-                if (workout.sets && workout.sets.length > 0) {
-                    details += `\nПодходы:\n`;
-                    workout.sets.forEach((set, i) => {
-                        details += `${i + 1}. ${set.reps} (${set.difficulty === 'knee' ? 'От колен' : 'Обычные'})\n`;
-                    });
-                }
-            }
-            alert(details);
+            // Удаляем старую тренировку
+            data.workouts = data.workouts.filter(w => w.date !== editingDate);
+
+            // Добавляем новую
+            data.workouts.push({
+                date: dateStr,
+                time: timeStr,
+                total: totalReps,
+                sets: sets,
+                type: 'regular',
+                timestamp: Date.now()
+            });
+
+            await saveUserData();
+            closeEditModal();
+            await updateStats();
+            await renderMonthCalendar();
+            await updateChart();
+            alert('✅ Тренировка обновлена!');
+        }
+
+        async function deleteWorkout() {
+            if (!confirm('Удалить тренировку?')) return;
+
+            data.workouts = data.workouts.filter(w => w.date !== editingDate);
+            await saveUserData();
+            closeEditModal();
+            await updateStats();
+            await renderMonthCalendar();
+            await updateChart();
+            alert('✅ Тренировка удалена!');
         }
 
         async function updateChart() {
             const period = document.getElementById('chartPeriod').value;
-            const chart = document.getElementById('chart');
-            chart.innerHTML = '';
-
-            let entries = [...data.workouts].sort((a, b) => a.date.localeCompare(b.date));
+            let entries = [...data.workouts]
+                .filter(w => w.type !== 'missed')
+                .sort((a, b) => a.date.localeCompare(b.date));
 
             if (period !== 'all') {
                 const days = parseInt(period);
@@ -966,22 +1176,55 @@
                 entries = entries.filter((w) => new Date(w.date) >= cutoffDate);
             }
 
-            if (entries.length === 0) {
-                chart.innerHTML = '<p style="grid-column: 1/-1; color: var(--text-light); text-align: center;">Нет данных</p>';
-                return;
+            const ctx = document.getElementById('chart');
+            const labels = entries.map(w => new Date(w.date).getDate());
+            const data_values = entries.map(w => w.total || 0);
+
+            if (chartInstance) {
+                chartInstance.destroy();
             }
 
-            const maxReps = Math.max(...entries.map((w) => w.total || 0), 50);
-            entries.forEach((workout) => {
-                const height = workout.total > 0 ? (workout.total / maxReps) * 100 : 0;
-                const isMaxTest = workout.type === 'max_test';
-                const bar = document.createElement('div');
-                bar.className = 'chart-bar';
-                bar.innerHTML = `
-                    <div class="chart-column ${isMaxTest ? 'max-test' : ''}" style="height: ${height}%;"></div>
-                    <div class="chart-label">${new Date(workout.date).getDate()}</div>
-                `;
-                chart.appendChild(bar);
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Отжимания',
+                            data: data_values,
+                            borderColor: 'var(--primary)',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: 'var(--primary)',
+                            pointBorderColor: 'white',
+                            pointBorderWidth: 2
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: { color: 'var(--text)' }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: 'var(--text-light)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: 'var(--text-light)' },
+                            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                        }
+                    }
+                }
             });
         }
 
@@ -1043,6 +1286,9 @@
             if (e.key === 'Enter' && document.getElementById('authScreen').style.display !== 'none') {
                 handleLogin();
             }
+        });
+        document.getElementById('editModal').addEventListener('click', (e) => {
+            if (e.target.id === 'editModal') closeEditModal();
         });
     </script>
 </body>
