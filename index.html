@@ -449,9 +449,10 @@
             grid-template-columns: 1fr 1fr auto;
             gap: 8px;
             margin-bottom: 8px;
-            padding: 8px;
+            padding: 12px;
             background: white;
             border-radius: 6px;
+            border: 2px solid var(--border);
             align-items: center;
         }
 
@@ -984,6 +985,7 @@
             await saveUserData();
             input.value = '';
             await updateWeightTrend();
+            await updateChart();
             alert('✅ Вес записан!');
         }
 
@@ -1085,7 +1087,7 @@
                     const setDiv = document.createElement('div');
                     setDiv.className = 'modal-set';
                     setDiv.innerHTML = `
-                        <input type="number" class="modal-input" value="${set.reps}" min="0" style="margin-bottom: 0;">
+                        <input type="number" class="modal-input" value="${set.reps}" min="0" style="margin-bottom: 0;" placeholder="Повторения">
                         <select class="difficulty-select" style="margin-bottom: 0;">
                             <option value="regular" ${set.difficulty === 'regular' ? 'selected' : ''}>Обычные</option>
                             <option value="knee" ${set.difficulty === 'knee' ? 'selected' : ''}>От колен</option>
@@ -1130,10 +1132,7 @@
                 return;
             }
 
-            // Удаляем старую тренировку
             data.workouts = data.workouts.filter(w => w.date !== editingDate);
-
-            // Добавляем новую
             data.workouts.push({
                 date: dateStr,
                 time: timeStr,
@@ -1178,7 +1177,32 @@
 
             const ctx = document.getElementById('chart');
             const labels = entries.map(w => new Date(w.date).getDate());
-            const data_values = entries.map(w => w.total || 0);
+            const pushups_data = entries.map(w => w.total || 0);
+            
+            // МАКСИМУМ - берём только max_test
+            const maxTests = data.workouts.filter(w => w.type === 'max_test').sort((a, b) => a.date.localeCompare(b.date));
+            let maxTestData = new Array(labels.length).fill(null);
+            
+            entries.forEach((entry, idx) => {
+                const maxTest = maxTests.find(m => m.date === entry.date);
+                if (maxTest) {
+                    maxTestData[idx] = maxTest.total;
+                }
+            });
+
+            // ВЕС - интерполируем данные веса на дни тренировок
+            let weightData = new Array(labels.length).fill(null);
+            let lastWeight = null;
+            
+            entries.forEach((entry, idx) => {
+                const weight = data.weights.find(w => w.date === entry.date);
+                if (weight) {
+                    lastWeight = weight.weight;
+                    weightData[idx] = weight.weight;
+                } else if (lastWeight !== null) {
+                    weightData[idx] = lastWeight;
+                }
+            });
 
             if (chartInstance) {
                 chartInstance.destroy();
@@ -1191,33 +1215,99 @@
                     datasets: [
                         {
                             label: 'Отжимания',
-                            data: data_values,
-                            borderColor: 'var(--primary)',
+                            data: pushups_data,
+                            borderColor: '#667eea',
                             backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                            borderWidth: 2,
+                            borderWidth: 3,
                             fill: true,
                             tension: 0.4,
-                            pointRadius: 4,
-                            pointBackgroundColor: 'var(--primary)',
+                            pointRadius: 5,
+                            pointBackgroundColor: '#667eea',
                             pointBorderColor: 'white',
-                            pointBorderWidth: 2
+                            pointBorderWidth: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Максимум',
+                            data: maxTestData,
+                            borderColor: '#ed8936',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 4,
+                            pointBackgroundColor: '#ed8936',
+                            pointBorderColor: 'white',
+                            pointBorderWidth: 2,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Вес (кг)',
+                            data: weightData,
+                            borderColor: '#48bb78',
+                            borderWidth: 2,
+                            borderDash: [2, 2],
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 3,
+                            pointBackgroundColor: '#48bb78',
+                            pointBorderColor: 'white',
+                            pointBorderWidth: 1,
+                            yAxisID: 'y1'
                         }
                     ]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
                     plugins: {
                         legend: {
                             display: true,
-                            labels: { color: 'var(--text)' }
+                            labels: { 
+                                color: 'var(--text)',
+                                usePointStyle: true,
+                                padding: 15
+                            }
                         }
                     },
                     scales: {
                         y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
                             beginAtZero: true,
-                            ticks: { color: 'var(--text-light)' },
-                            grid: { color: 'rgba(0, 0, 0, 0.1)' }
+                            title: {
+                                display: true,
+                                text: 'Отжимания',
+                                color: '#667eea'
+                            },
+                            ticks: { 
+                                color: '#667eea',
+                                font: { weight: 'bold' }
+                            },
+                            grid: { color: 'rgba(102, 126, 234, 0.1)' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Вес (кг)',
+                                color: '#48bb78'
+                            },
+                            ticks: { 
+                                color: '#48bb78',
+                                font: { weight: 'bold' }
+                            },
+                            grid: { drawOnChartArea: false },
+                            min: data.weights.length > 0 ? Math.min(...data.weights.map(w => w.weight)) - 2 : 70,
+                            max: data.weights.length > 0 ? Math.max(...data.weights.map(w => w.weight)) + 2 : 90
                         },
                         x: {
                             ticks: { color: 'var(--text-light)' },
