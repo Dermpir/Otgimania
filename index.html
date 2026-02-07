@@ -812,19 +812,18 @@
 
         async function loadFirebaseData() {
             if (!firebase.auth().currentUser) {
-                console.error("❌ Нет пользователя для загрузки");
+                console.error("Нет авторизованного пользователя");
                 data = { workouts: [], weights: [] };
                 return;
             }
 
             const userId = firebase.auth().currentUser.uid;
-            console.log("📥 Загружаем данные для:", userId);
-
+            
             return new Promise((resolve, reject) => {
                 firebase.database().ref('users/' + userId).once('value', (snapshot) => {
                     if (snapshot.exists()) {
                         data = snapshot.val();
-                        
+
                         if (data.workouts && Array.isArray(data.workouts)) {
                             data.workouts = data.workouts.map(w => ({
                                 ...w,
@@ -833,7 +832,7 @@
                         } else {
                             data.workouts = [];
                         }
-                        
+
                         if (data.weights && Array.isArray(data.weights)) {
                             data.weights = data.weights.map(wt => ({
                                 ...wt,
@@ -842,20 +841,21 @@
                         } else {
                             data.weights = [];
                         }
-                        
-                        console.log("✅ Данные загружены:", data.workouts.length, "тренировок");
                     } else {
                         data = { workouts: [], weights: [] };
-                        console.log("ℹ️ Нет данных в Firebase");
                     }
+
+                    console.log("Firebase загружен:", data.workouts.length, data.weights.length);
                     resolve();
                 }, (error) => {
-                    console.error("❌ Ошибка Firebase:", error);
-                    data = { workouts: [], weights: [] };
+                    console.error("Ошибка чтения Firebase:", error);
+                    // ВАЖНО: не обнуляем data здесь
+                    // data = { workouts: [], weights: [] };  <-- это удалить
                     reject(error);
                 });
             });
         }
+
 
         async function saveUserData() {
             if (!firebase.auth().currentUser) {
@@ -999,25 +999,38 @@
             alert('✅ Максимум записан!');
         }
 
+        // 1) Пропуск не трёт другие тренировки
         async function markMissed() {
-            const today = new Date().toISOString().split('T')[0];
-            data.workouts = data.workouts.filter(w => w.date !== today);
-            data.workouts.push({ 
-                date: today, 
-                time: '12:00',
-                total: 0, 
-                sets: [], 
-                type: 'missed', 
-                timestamp: Date.now() 
+            const today = new Date().toISOString().split("T")[0];
+
+            const existing = data.workouts.find(w => w.date === today);
+
+            if (existing && existing.type !== "missed") {
+                alert("На сегодня уже есть тренировка, пропуск нельзя поставить.");
+                return;
+            }
+            if (existing && existing.type === "missed") {
+                alert("Сегодня уже отмечено как пропуск.");
+                return;
+            }
+
+            data.workouts.push({
+                date: today,
+                time: "12:00",
+                total: 0,
+                sets: [],
+                type: "missed",
+                timestamp: Date.now()
             });
 
-            await saveUserData();
-            clearSetInputs();
-            await updateStats();
-            await renderMonthCalendar();
-            await updateChart();
-            alert('⚠️ День помечен как пропущенный');
-        }
+    await saveUserData();
+    clearSetInputs();
+    await updateStats();
+    await renderMonthCalendar();
+    await updateChart();
+    alert("Отмечено как пропущенная тренировка");
+}
+
 
         function clearSetInputs() {
             document.querySelectorAll('#setsContainer .set-input').forEach(input => input.value = '');
